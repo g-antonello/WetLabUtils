@@ -1,0 +1,6 @@
+# avoid Mac specific files
+.DS_store
+__MACOSX
+# ignore sensitive data in testData, that must stay local for now
+testData/MEA
+testData/MACROS
