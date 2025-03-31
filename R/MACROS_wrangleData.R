@@ -3,7 +3,8 @@
 #' This is a very specific function created for Chiara Volani and Irma Della Corte
 #' to ease processing of multiple imaging macros
 #'
-#' @param inDir \code{character}. Where the function should read the files from. NB: so far only `.csv` and `.tsv` file format is supported
+#' @param inDir \code{character}. Where the function should read the files from
+#' @param fileExtension \code{character}. The file extension. So far only `.csv` and `.tsv` are supported
 #' @param outDir \code{character}. Where the function write the files to. default = `outputFiles`, will write into this newly created directory within `inDir`. NB: output file format will always be `.tsv` to avoid conflicts in file names.
 #'
 #' @returns A \code{list} with `data.frame`s, one per oucome of interest. This is returned only in case of an interactive session.
@@ -17,9 +18,9 @@
 #'                      outDir = "~/Documents/git_repos/WetLabUtils/testData/MACROS/wrangledFiles")
 #' }
 
-MACROS_wrangleData <- function(inDir, outDir = "outputFiles"){
+MACROS_wrangleData <- function(inDir, fileExtension = ".csv", outDir = "outputFiles"){
   
-  filePaths <- list.files(inDir, full.names = TRUE)
+  filePaths <- list.files(inDir, pattern = fileExtension, full.names = TRUE, recursive = FALSE)
   fileNames <- basename(filePaths)
   names(filePaths) <- fileNames
   
@@ -50,7 +51,8 @@ MACROS_wrangleData <- function(inDir, outDir = "outputFiles"){
   # read files as list of data frames
   files_readIn.list <- lapply(files_per_outcome, function(x)
     lapply(names(x), function(fileName) {
-      tmp <- read.csv(filePaths[fileName], row.names = 1)
+      sep <- ifelse(fileExtension == ".csv", ",", "\t")
+      tmp <- read.table(filePaths[fileName], row.names = 1, header = TRUE, sep = sep)
       # add file name to results
       tmp$fileName = fileName
       rownames(tmp) <- NULL
