@@ -4,7 +4,7 @@
 #' to ease processing of multiple imaging macros
 #'
 #' @param inDir \code{character}. Where the function should read the files from. NB: so far only `.csv` and `.tsv` file format is supported
-#' @param outDir \code{character}. Where the function write the files to. default = `NULL`, will write in the `inDir`. NB: output file format will always be `.tsv` to avoid conflicts in file names.
+#' @param outDir \code{character}. Where the function write the files to. default = `outputFiles`, will write into this newly created directory within `inDir`. NB: output file format will always be `.tsv` to avoid conflicts in file names.
 #'
 #' @returns A \code{list} with `data.frame`s, one per oucome of interest. This is returned only in case of an interactive session.
 #' @export
@@ -13,10 +13,11 @@
 #' \dontrun{
 #'   baseDir <- "path/to/git/repo"
 #'   MACROS_wrangleData(inDir = "~/Documents/git_repos/WetLabUtils/testData/MACROS")
-#'  MACROS_wrangleData(inDir = "~/Documents/git_repos/WetLabUtils/testData/MACROS", outDir = "~/Documents/git_repos/WetLabUtils/testData/MACROS/wrangledFiles")
-#' \}
+#'   MACROS_wrangleData(inDir = "~/Documents/git_repos/WetLabUtils/testData/MACROS", 
+#'                      outDir = "~/Documents/git_repos/WetLabUtils/testData/MACROS/wrangledFiles")
+#' }
 
-MACROS_wrangleData <- function(inDir, outDir = NULL){
+MACROS_wrangleData <- function(inDir, outDir = "outputFiles"){
   
   filePaths <- list.files(inDir, full.names = TRUE)
   fileNames <- basename(filePaths)
@@ -72,16 +73,11 @@ MACROS_wrangleData <- function(inDir, outDir = NULL){
   
   
   # handle output directory instruction
-  if(!is.null(outDir)){
-    
-    dir.create(outDir, showWarnings = FALSE, recursive = TRUE)
-  
-    } else {
-    outDir <- inDir
-  }
+  outDirOK <- file.path(inDir, outDir)
+  dir.create(outDirOK, showWarnings = FALSE, recursive = TRUE)
   
   for(file in names(files_bound)){
-    write.csv(files_bound[[file]], file = paste0(outDir, "/", file, ".tsv"), sep = "\t")
+    write.table(files_bound[[file]], file = paste0(outDirOK, "/", file, ".tsv"), sep = "\t", quote = FALSE, row.names = FALSE)
   }
   
   if(interactive()){
